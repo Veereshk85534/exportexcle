@@ -1,0 +1,41 @@
+EXCEL EXPORTING IN MVC
+
+<!--Library-->
+using ClosedXML.Excel;
+
+<!--In Controller-->
+[HttpPost]
+        public ActionResult Export(int DeptId1)
+        {
+		<!--In Excel After Saving Showing Column Name-->
+            DataTable dt = new DataTable("Grid");
+            dt.Columns.AddRange(new DataColumn[4] { 
+                                        new DataColumn("Name"),
+                                        new DataColumn("Date"),
+                                        new DataColumn("Salery"),
+                                        new DataColumn("DeptId") });
+		<!--You lenq Query-->
+            var customers = from Sample in this.sqlContext.sample.Include(s => s.DeptTable) select Sample;
+
+            foreach (var customer in customers)
+            {
+                dt.Rows.Add(customer.Name, customer.Date, customer.Salary,  customer.DeptTable.DeptName);
+            }
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
+                }
+            }
+        }
+
+
+<!--In View-->
+      <button type="submit" class="btn btn-success swalDefaultSuccess">
+                  Launch Success Toast
+      </button>
+         
